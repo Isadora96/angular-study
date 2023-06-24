@@ -9,7 +9,7 @@ export class AppComponent {
 
   featuredSelected = 'recipe'
 
-  onNavigate(feature: string) {
+  onNavigate(feature: any) {
     this.featuredSelected = feature;
   }
 
