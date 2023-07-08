@@ -19,15 +19,18 @@ export class DataStorageService {
     }
 
     fetchRecipes() {
+        console.log('fetch')
         return this.http.get<Recipe[]>('https://recipe-angular-71407-default-rtdb.firebaseio.com/recipes.json')
-        .pipe(map((recipes: Recipe[]) => {
-            return recipes.map((recipe) => {
-                return {...recipe, ingredients: recipe.ingredients ? recipe.ingredients : [] }
-            });
-        }),
-        tap(recipes => {
-            this.recipeService.setRecipes(recipes);
-        }))
+        .pipe(
+            map((recipes: Recipe[]) => {
+                return recipes.map((recipe) => {
+                    return {...recipe, ingredients: recipe.ingredients ? recipe.ingredients : [] }
+                });
+            }),
+            tap(recipes => {
+                this.recipeService.setRecipes(recipes);
+            })
+        )
     }
 
 
