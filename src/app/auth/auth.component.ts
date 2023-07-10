@@ -1,8 +1,9 @@
-import { Component } from "@angular/core";
+import { Component, ViewContainerRef } from "@angular/core";
 import { NgForm } from "@angular/forms";
 import { AuthService, AuthResponseData } from "./auth.service";
-import { Observable } from "rxjs";
+import { Observable, Subscription } from "rxjs";
 import { Router } from "@angular/router";
+import { AlertComponent } from "../shared/alert/alert.component";
 
 
 @Component({
@@ -15,7 +16,9 @@ export class AuthComponent {
     isLoading: boolean = false;
     errorMessage: string | null = null;
 
-    constructor (private authService: AuthService, private router: Router) {}
+    private closeSub!: Subscription;
+
+    constructor (private authService: AuthService, private router: Router, private viewContainerRef: ViewContainerRef) {}
 
     onSwitchMode() {
         this.isLoginMode = !this.isLoginMode;
@@ -42,8 +45,24 @@ export class AuthComponent {
         }, error => {
             this.errorMessage = error,
             this.isLoading = false;
+            this.showErrorAlert(this.errorMessage);
         })
 
         form.reset();
+    }
+
+    onHandleError() {
+        this.errorMessage = null;
+    }
+
+    private showErrorAlert(message: string | null) {
+        const alertCpmFactory = this.viewContainerRef.createComponent(AlertComponent);
+
+        alertCpmFactory.instance.message = message!;
+        this.closeSub = alertCpmFactory.instance.close.subscribe(() => {
+            this.closeSub.unsubscribe();
+            this.viewContainerRef.clear();
+        });
+        
     }
 }
