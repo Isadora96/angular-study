@@ -1,64 +1,49 @@
-import { Injectable } from "@angular/core";
-import { Recipe } from "./recipe.model";
-import { Ingredient } from "../shared/ingredient.model";
-import { ShoppingListService } from "../shopping-list/shopping-list.service";
-import { Subject } from "rxjs";
+import { Injectable } from '@angular/core';
+import { Subject } from 'rxjs';
+
+import { Recipe } from './recipe.model';
+import { Ingredient } from '../shared/ingredient.model';
+import { Store } from '@ngrx/store';
+import { AddIngredients } from '../shopping-list/store/shopping-list.actions';
+import * as fromShoppingList from '../shopping-list/store/shopping-list.reducer';
 
 @Injectable()
 export class RecipeService {
+  recipesChanged = new Subject<Recipe[]>();
 
-    recipesChanged = new Subject<Recipe[]>;
-    
-    private recipes: Recipe[] = [
-        new Recipe(
-          'test', 
-          'text', 
-          'https://hips.hearstapps.com/hmg-prod/images/casserole-recipes-6478d7f325a3a.jpeg',
-        [
-          new Ingredient('Meat', 1),
-          new Ingredient('French fries', 2)
-        ]),
-        new Recipe(
-          'test', 
-          'tex1', 
-          'https://hips.hearstapps.com/hmg-prod/images/casserole-recipes-6478d7f325a3a.jpeg',
-          [
-            new Ingredient('Buns', 2)
-          ]
-          )
-      ]
+  private recipes: Recipe[] = [];
 
-    constructor(private shoppingService: ShoppingListService) {}
+  constructor(private store: Store<fromShoppingList.State>) {}
 
-    setRecipes(recipes: Recipe[]) {
-      this.recipes = recipes;
-      this.recipesChanged.next(this.recipes.slice());
-    }
+  setRecipes(recipes: Recipe[]) {
+    this.recipes = recipes;
+    this.recipesChanged.next(this.recipes.slice());
+  }
 
-    getRecipes() {
-       return this.recipes.slice();
-    }
+  getRecipes() {
+    return this.recipes.slice();
+  }
 
-    getRecipe(index: number) {
-      return this.recipes[index]
-    }
+  getRecipe(index: number) {
+    return this.recipes[index];
+  }
 
-    addIngredientsToShoppintList(ingredients: Ingredient[]) {
-      this.shoppingService.addIngredients(ingredients);
-    }
+  addIngredientsToShoppingList(ingredients: Ingredient[]) {
+    this.store.dispatch(new AddIngredients(ingredients));
+  }
 
-    addRecipe(recipe: Recipe) {
-      this.recipes.push(recipe);
-      this.recipesChanged.next(this.recipes.slice());
-    }
+  addRecipe(recipe: Recipe) {
+    this.recipes.push(recipe);
+    this.recipesChanged.next(this.recipes.slice());
+  }
 
-    updateRecipe(index: number, newRecipe: Recipe) {
-      this.recipes[index] = newRecipe;
-      this.recipesChanged.next(this.recipes.slice());
-    }
+  updateRecipe(index: number, newRecipe: Recipe) {
+    this.recipes[index] = newRecipe;
+    this.recipesChanged.next(this.recipes.slice());
+  }
 
-    deleteRecipe(index: number) {
-      this.recipes.splice(index, 1);
-      this.recipesChanged.next(this.recipes.slice());
-    }
+  deleteRecipe(index: number) {
+    this.recipes.splice(index, 1);
+    this.recipesChanged.next(this.recipes.slice());
+  }
 }
